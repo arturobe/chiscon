@@ -1,0 +1,357 @@
+// Núcleo v1 — semanas 1–2 (US-001, US-002, US-003, US-015)
+// El despacho es el tenant: toda tabla de cartera lleva despachoId (RLS en Postgres).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Despachos y personal ----------
+
+model Despacho {
+  id           String     @id @default(cuid())
+  nombre       String
+  cif          String?
+  dpaFirmadoEn DateTime? // condición para importar comunidades
+  creadoEn     DateTime   @default(now())
+  usuarios     Usuario[]
+  comunidades  Comunidad[]
+  confianza    ProveedorConfianza[]
+  auditoria    AuditLog[]
+}
+
+enum RolUsuario {
+  ADMINISTRADOR
+  PERSONAL_DESPACHO
+  FUNDADOR
+}
+
+// Solo personal con cuenta. Vecinos y presidentes NO tienen Usuario (identidad por niveles en Contacto).
+model Usuario {
+  id          String     @id @default(cuid())
+  despachoId  String?
+  despacho    Despacho?  @relation(fields: [despachoId], references: [id])
+  email       String     @unique
+  nombre      String
+  rol         RolUsuario
+  totpSecreto String? // 2FA obligatoria: sin secreto confirmado no hay sesión
+  totpActivo  Boolean    @default(false)
+  creadoEn    DateTime   @default(now())
+}
+
+// ---------- Comunidades ----------
+
+enum EstadoAlta {
+  PENDIENTE_AUTORIZACION
+  LISTA_IMPORTAR
+  ACTIVA
+}
+
+enum TipoAutorizacion {
+  DECLARACION_DESPACHO
+  FIRMA_PRESIDENTE
+}
+
+model Comunidad {
+  id                       String            @id @default(cuid())
+  despachoId               String
+  despacho                 Despacho          @relation(fields: [despachoId], references: [id])
+  codigo                   String            @unique // "C-4821", va en el QR del portal
+  direccion                String
+  distrito                 String
+  numViviendas             Int
+  estadoAlta               EstadoAlta        @default(PENDIENTE_AUTORIZACION)
+  autorizacionTipo         TipoAutorizacion?
+  autorizacionEvidenciaKey String?
+  autorizadaEn             DateTime?
+  umbralAprobacionCents    Int? // por encima, aprueba también el presidente
+  presidenteEmail          String?
+  activadaEn               DateTime?
+  viviendas                Vivienda[]
+  contactos                Contacto[]
+  polizas                  PolizaComunidad[]
+  terceros                 ComunidadTercero[]
+  incidencias              Incidencia[]
+
+  @@index([despachoId, estadoAlta])
+}
+
+model Vivienda {
+  id          String     @id @default(cuid())
+  comunidadId String
+  comunidad   Comunidad  @relation(fields: [comunidadId], references: [id])
+  portal      String?
+  piso        String
+  puerta      String?
+  contactos   Contacto[]
+
+  @@unique([comunidadId, portal, piso, puerta])
+}
+
+enum RolContacto {
+  VECINO
+  PRESIDENTE
+}
+
+// Un mismo teléfono puede existir en dos despachos: el contacto es por comunidad.
+model Contacto {
+  id                  String               @id @default(cuid())
+  comunidadId         String
+  comunidad           Comunidad            @relation(fields: [comunidadId], references: [id])
+  viviendaId          String?
+  vivienda            Vivienda?            @relation(fields: [viviendaId], references: [id])
+  nombre              String?
+  telefonoE164        String
+  email               String?
+  rol                 RolContacto          @default(VECINO)
+  designadoPorId      String? // N2-P: el presidente lo designa el despacho, nunca él mismo
+  designadoEn         DateTime?
+  prioridadVulnerable Boolean              @default(false) // sin datos de salud
+  optIns              OptIn[]
+  codigos             CodigoVerificacion[]
+
+  @@unique([comunidadId, telefonoE164])
+  @@index([telefonoE164])
+}
+
+enum CanalOptIn {
+  WHATSAPP
+  EMAIL
+}
+
+enum OrigenOptIn {
+  QR_PORTAL
+  CIRCULAR
+  DESPACHO_EVIDENCIA
+}
+
+model OptIn {
+  id           String      @id @default(cuid())
+  contactoId   String
+  contacto     Contacto    @relation(fields: [contactoId], references: [id])
+  canal        CanalOptIn
+  origen       OrigenOptIn
+  evidenciaKey String?
+  textoVersion String
+  otorgadoEn   DateTime    @default(now())
+  revocadoEn   DateTime?
+
+  @@index([contactoId, canal])
+}
+
+enum AccionVerificada {
+  FIRMAR_PRESUPUESTO
+  APROBAR_PRESIDENTE
+  ACEPTAR_DPA
+}
+
+// N2: código de 6 cifras ligado al hash del documento. Nunca se guarda el código en claro.
+model CodigoVerificacion {
+  id              String           @id @default(cuid())
+  contactoId      String?
+  contacto        Contacto?        @relation(fields: [contactoId], references: [id])
+  accion          AccionVerificada
+  objetoId        String
+  objetoSha256    String
+  codigoHash      String
+  enlaceTokenHash String           @unique
+  codigoExpiraEn  DateTime
+  enlaceExpiraEn  DateTime
+  intentos        Int              @default(0)
+  usadoEn         DateTime?
+  creadoEn        DateTime         @default(now())
+}
+
+// ---------- Terceros, póliza y guardia ----------
+
+enum TipoTercero {
+  ASEGURADORA
+  MANTENEDORA_ASCENSOR
+  OCA
+  PERITO
+  DISTRIBUIDORA_GAS
+}
+
+model Tercero {
+  id          String             @id @default(cuid())
+  tipo        TipoTercero
+  nombre      String
+  telefono24h String?
+  comunidades ComunidadTercero[]
+  polizas     PolizaComunidad[]
+}
+
+model ComunidadTercero {
+  comunidadId String
+  comunidad   Comunidad   @relation(fields: [comunidadId], references: [id])
+  terceroId   String
+  tercero     Tercero     @relation(fields: [terceroId], references: [id])
+  rol         TipoTercero
+
+  @@id([comunidadId, terceroId, rol])
+}
+
+model PolizaComunidad {
+  id              String    @id @default(cuid())
+  comunidadId     String
+  comunidad       Comunidad @relation(fields: [comunidadId], references: [id])
+  aseguradoraId   String
+  aseguradora     Tercero   @relation(fields: [aseguradoraId], references: [id])
+  numPoliza       String
+  telefono24h     String
+  vecinoPuedeLlamar Boolean? // a validar con aseguradoras reales
+  vigenteHasta    DateTime?
+}
+
+// ---------- Profesionales ----------
+
+model Profesional {
+  id          String               @id @default(cuid())
+  nombre      String
+  telefonoE164 String              @unique
+  oficios     String[]
+  verificadoEn DateTime?
+  confianza   ProveedorConfianza[]
+  guardias    GuardiaProveedor[]
+}
+
+model ProveedorConfianza {
+  despachoId    String
+  despacho      Despacho    @relation(fields: [despachoId], references: [id])
+  profesionalId String
+  profesional   Profesional @relation(fields: [profesionalId], references: [id])
+  oficio        String
+
+  @@id([despachoId, profesionalId, oficio])
+}
+
+model GuardiaProveedor {
+  id            String      @id @default(cuid())
+  despachoId    String
+  profesionalId String
+  profesional   Profesional @relation(fields: [profesionalId], references: [id])
+  oficio        String
+  desde         DateTime
+  hasta         DateTime
+  telefono      String
+}
+
+// ---------- Incidencias ----------
+
+enum EstadoIncidencia {
+  RECIBIDA
+  CLASIFICADA
+  ASIGNADA
+  ACEPTADA
+  PENDIENTE_APROBACION // después de Aceptada: el umbral necesita el importe del presupuesto
+  EN_CAMINO
+  EN_CURSO
+  PENDIENTE_PIEZA
+  RESUELTA
+  CERRADA
+  ANULADA
+}
+
+enum Urgencia {
+  U1
+  U2
+  U3
+  U4
+}
+
+enum Ambito {
+  COMUN
+  PRIVATIVA
+  INDETERMINADA
+}
+
+enum ActorTipo {
+  SISTEMA
+  ASISTENTE
+  VECINO
+  PRESIDENTE
+  ADMINISTRADOR
+  PROFESIONAL
+  FUNDADOR
+}
+
+model Incidencia {
+  id                         String             @id @default(cuid())
+  despachoId                 String
+  comunidadId                String
+  comunidad                  Comunidad          @relation(fields: [comunidadId], references: [id])
+  viviendaId                 String?
+  reportadaPorContactoId     String? // nunca se expone a otros vecinos
+  nivelIdentidadReporte      String // N0 | N1 | N2
+  descripcion                String
+  oficio                     String?
+  ambito                     Ambito             @default(INDETERMINADA)
+  categoriaSeguridad         Boolean            @default(false) // portal, cerraduras, cámaras, alarma: nunca a N0
+  urgenciaReglas             Urgencia?
+  urgenciaLLM                Urgencia?
+  urgenciaFinal              Urgencia           @default(U3)
+  estado                     EstadoIncidencia   @default(RECIBIDA)
+  estadoDesde                DateTime           @default(now())
+  bloqueadaPorTerceroId      String? // bloqueo aparte del estado
+  escalada                   Boolean            @default(false)
+  ultimaConfirmacionHumanaEn DateTime?
+  ultimaConfirmacionPor      ActorTipo?
+  duplicadaDeId              String? // agrupación de zona común
+  creadaEn                   DateTime           @default(now())
+  eventos                    IncidenciaEvento[]
+  temporizadores             Temporizador[]
+
+  @@index([despachoId, estado])
+  @@index([comunidadId, estado])
+}
+
+// Fuente única de verdad: solo inserción. transicionar() escribe estado y evento en la misma transacción.
+model IncidenciaEvento {
+  id           String            @id @default(cuid())
+  incidenciaId String
+  incidencia   Incidencia        @relation(fields: [incidenciaId], references: [id])
+  tipo         String // TRANSICION | BLOQUEO | DESBLOQUEO | URGENCIA | NOTA
+  desde        EstadoIncidencia?
+  hasta        EstadoIncidencia?
+  actorTipo    ActorTipo
+  actorId      String?
+  fuente       String? // p. ej. "proveedor por teléfono"
+  datos        Json?
+  creadoEn     DateTime          @default(now())
+
+  @@index([incidenciaId, creadoEn])
+}
+
+model Temporizador {
+  id           String           @id @default(cuid())
+  incidenciaId String
+  incidencia   Incidencia       @relation(fields: [incidenciaId], references: [id])
+  estado       EstadoIncidencia
+  urgencia     Urgencia
+  venceEn      DateTime
+  disparadoEn  DateTime?
+  ultimaConsultaProfesionalEn DateTime? // máx. 1 consulta cada 2 h
+
+  @@index([venceEn, disparadoEn])
+}
+
+// ---------- Auditoría (US-015) ----------
+
+model AuditLog {
+  id         String    @id @default(cuid())
+  despachoId String?
+  despacho   Despacho? @relation(fields: [despachoId], references: [id])
+  actorTipo  ActorTipo
+  actorId    String?
+  accion     String // APROBAR | FIRMAR | ACCEDER | IMPORTAR | ...
+  objeto     String
+  objetoId   String
+  datos      Json?
+  creadoEn   DateTime  @default(now())
+
+  @@index([despachoId, creadoEn])
+}

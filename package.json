@@ -1,0 +1,25 @@
+{
+  "name": "comunidades-madrid",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prisma:validate": "prisma validate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "prisma": "^6.19.3",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "zod": "^4.6.7"
+  },
+  "private": true,
+  "type": "module"
+}
