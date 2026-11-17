@@ -189,3 +189,13 @@ El detalle completo está en el documento "Chiscón — Cómo, cuándo y a quié
 Tablas `Monedero` y `MovimientoMonedero` (recarga, comisión, devolución como saldo, cuota Pro; solo inserción). `Presupuesto` con `margenPct` y versiones o ampliaciones. `UsoMargen`. Desviación calculada por profesional.
 
 La comisión ya no se calcula en la factura mensual por transferencia: queda sustituida por el monedero.
+
+## Decidido con Arturo: paquete del despacho y puesta en marcha (17/11/2026)
+
+- **Paquete cerrado.** Al firmar, el despacho contrata un paquete de N comunidades, con las viviendas declaradas de cada una. Eso fija un precio mensual por tramos.
+- **30 días de puesta en marcha sin cuota.** Desde el día 31 se cobra el paquete completo, estén las comunidades activas o no. La activación es responsabilidad del despacho.
+- **Compromiso de Chiscón:** dar el servicio completo a toda comunidad que cumpla las condiciones. El sistema pide los datos que faltan.
+- **Ampliar el paquete:** en cualquier momento, con cobro desde el mes siguiente.
+- **Reducir el paquete:** solo al renovar a los 12 meses. Excepción: si una comunidad cambia de administrador (con acta de la junta), sale del paquete el mes siguiente.
+- **Esquema:** `Suscripcion` con `paqueteComunidades`, `firmadoEn`, `finPuestaEnMarcha` (firma + 30 días) y líneas por comunidad con `numViviendasDeclarado` y tramo. La factura mensual sale del paquete, no de las comunidades activas.
+- **Abierto:** el mínimo de comunidades por paquete. Antes era 40, pero el ejemplo de Arturo (25 comunidades) queda por debajo.
