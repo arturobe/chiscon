@@ -2,6 +2,23 @@
 
 Plataforma de mantenimiento para comunidades de propietarios de Madrid (entrada por administradores de fincas, asistente de WhatsApp 24/7, red de profesionales, presupuesto firmado, pagos). Lanzamiento completo: **15/02/2027**. Fundador único, no técnico: responder en español, una recomendación directa, bloqueos primero.
 
+## Principio rector: cero laberintos
+
+El sistema trabaja solo y se sincroniza solo. Nadie (vecino, presidente, administrador, profesional) debe perderse entre opciones o decisiones.
+
+- **Lo automático primero.** Si el sistema puede deducir o decidir algo, lo hace y lo explica en una línea; la persona solo corrige si quiere.
+- **Una decisión por pantalla o mensaje** como máximo, con la opción recomendada ya marcada.
+- **Nada de configuración previa.** Valores por defecto sensatos; los ajustes aparecen solo cuando hacen falta.
+- **Cada aviso dice qué pasa y qué hacer**, con un solo botón o respuesta.
+- **Tono con inteligencia emocional:** calma ante la urgencia, sin culpas, sin tecnicismos, pensando en personas mayores y en gente con prisa o enfadada.
+- **Cobros invisibles:** nadie factura ni persigue pagos a mano.
+
+Cada pantalla, mensaje o ventana de interacción se diseña antes de programarla:
+
+1. Con el agente `agentic-council:Advocate`, que simula a las personas reales: vecina de 82 años, administrador de 60 años, profesional con las manos ocupadas, vecino enfadado.
+2. Con las skills `agentic-council:advocate-journey-mapping`, `agentic-council:advocate-interaction-design`, `design:ux-copy` y `agentic-council:advocate-a11y-audit`.
+3. Se revisa contra este principio. Si una pantalla pide más de una decisión, se rediseña.
+
 ## Skills obligatorias por etapa
 
 Antes de cada tarea, cargar con la herramienta Skill las que apliquen. No es opcional.
@@ -17,6 +34,7 @@ Antes de cada tarea, cargar con la herramienta Skill las que apliquen. No es opc
 | Códigos OTP, HMAC, tokens, cifrado | `agentic-council:cipher-crypto-review` |
 | Casos límite de estados e incidencias | `agentic-council:skeptic-edge-case-enumeration`, `agentic-council:skeptic-failure-mode-analysis` |
 | Asistente (Claude) | `agentic-council:oracle-prompt-engineering`, `agentic-council:oracle-ai-evaluation` |
+| Pantallas, mensajes y textos | Agente `agentic-council:Advocate` + `agentic-council:advocate-journey-mapping`, `agentic-council:advocate-interaction-design`, `design:ux-copy`, `agentic-council:advocate-a11y-audit` |
 | Plan de tests y E2E | `agentic-council:craftsman-testing-strategy`, `agentic-council:craftsman-e2e-testing` |
 | Revisión antes de cada commit/PR | `engineering:code-review`, `superpowers:requesting-code-review` |
 | Antes de decir "terminado" | `superpowers:verification-before-completion` (ejecutar tests y typecheck, mostrar la salida) |
