@@ -199,3 +199,11 @@ La comisión ya no se calcula en la factura mensual por transferencia: queda sus
 - **Reducir el paquete:** solo al renovar a los 12 meses. Excepción: si una comunidad cambia de administrador (con acta de la junta), sale del paquete el mes siguiente.
 - **Esquema:** `Suscripcion` con `paqueteComunidades`, `firmadoEn`, `finPuestaEnMarcha` (firma + 30 días) y líneas por comunidad con `numViviendasDeclarado` y tramo. La factura mensual sale del paquete, no de las comunidades activas.
 - **Sin mínimo ni máximo de comunidades por despacho** (decidido con Arturo el 17/11/2026). El paquete cerrado, el alta de 290 € y la cláusula de uso razonable ya cubren lo que el mínimo protegía.
+
+## Decidido con Arturo: prioridad de los profesionales de confianza (17/11/2026)
+
+- **Profesionales de confianza.** Hasta 3 por oficio, con orden 1.º, 2.º y 3.º. Se definen para todo el despacho o para una comunidad concreta; si hay las dos, manda la de la comunidad. Siempre van antes que la red y no pagan comisión.
+- **Cascada automática.** Cada profesional tiene un tiempo para aceptar. Si no responde, el trabajo pasa al siguiente sin que nadie intervenga. Tiempos por defecto: U1 15 min · U2 2 h · U3 24 h.
+- **La red.** Cuando no hay profesional de confianza, o ninguno acepta, el trabajo va a profesionales verificados cuya zona de trabajo cubre la comunidad. Se ordenan por cercanía, valoración, desviación de sus presupuestos y carga de trabajo (`capacidadSimultanea`). Estos trabajos pagan comisión.
+- **Noche.** Primero los profesionales de confianza que tengan guardia. Si no hay, la guardia de la red. Después, el teléfono 24 h del seguro.
+- **Esquema.** `ProveedorConfianza(despachoId, comunidadId?, oficio, orden 1..3, profesionalId)`, único por (ámbito, oficio, orden). Sustituye a la regla anterior de "uno por oficio". Zona de trabajo del profesional: distritos o radio. `Asignacion` registra el canal (CONFIANZA / RED) y el motivo por el que pasó al siguiente (NO_RESPONDE / RECHAZA / SIN_GUARDIA).
