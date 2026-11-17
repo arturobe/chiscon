@@ -111,6 +111,17 @@ Todas son decisiones de Claude, con su motivo. Arturo puede corregirlas.
    - El correo del presidente de la ficha se rellena con el de ese contacto y se puede editar.
 8. **Verificación en este entorno:** todos los tests de base de datos corren aquí, contra PGlite y con Drizzle. Lo único que se valida fuera es la conexión real a Neon.
 
+9. **Uso de la vivienda y relación del contacto** (decidido con Arturo el 17/11/2026 a partir de tres casos: piso turístico, piso cerrado con propietario fuera y cambio de inquilinos).
+   - `Vivienda.uso`: HABITUAL | TURISTICA | VACIA | DESCONOCIDO (por defecto DESCONOCIDO; lo completa el despacho en la ficha).
+   - `Contacto.relacion`: PROPIETARIO | INQUILINO | GESTOR | CUSTODIO_LLAVES (independiente de `rol` VECINO/PRESIDENTE). En el Excel se acepta una columna `relacion` en la lista blanca.
+   - `Contacto.verificadoPor` (DESPACHO | PROPIETARIO) y `verificadoEn`, para la revalidación anual de inquilinos.
+   - `normalizarTelefono` acepta cualquier prefijo internacional escrito con `00` (p. ej. `001…` de EE. UU.), no solo `0034`.
+   - Se construye ahora solo el dato. Los flujos van en la semana 3 con WhatsApp:
+     - **Alta de inquilino confirmada por el propietario** con código. Al confirmarse, se da de baja al inquilino anterior de esa vivienda. Sin respuesta en 7 días, pasa a los pendientes del despacho.
+     - **Revalidación anual** de inquilinos.
+     - **Urgencia en vivienda VACIA:** aviso simultáneo al custodio de llaves y al propietario, más la cadena nocturna habitual.
+     - **Vivienda TURISTICA:** los avisos de esa vivienda van también al GESTOR. Hay un límite de avisos por número desconocido, y un huésped nunca supera el nivel N0.
+
 ## Pruebas (puertas de esta fase)
 
 - Tests de dominio existentes en verde (31).
@@ -129,3 +140,17 @@ Todas son decisiones de Claude, con su motivo. Arturo puede corregirlas.
 - Librería de QR y forma exacta del cartel (siguiendo los textos de "Marca y mensajes").
 - Si los XLSX se leen directamente o se pide exportar a CSV en v1 (preferible leerlos si la librería es ligera).
 - Nombres de migraciones y de las funciones de la capa de datos.
+
+## Pendiente de aprobación: simulación de situaciones (17/11/2026)
+
+Cinco especialistas simularon 73 situaciones sobre este diseño. El resultado está en el documento "Chiscón — Simulación de situaciones y huecos" (https://claude.ai/artifact/21uFBn55p19VtyAcTzBPJD). Propone 7 grupos de cambios en el esquema que deben entrar en la primera migración:
+
+1. Comunidad y encargo.
+2. Historial sin datos personales.
+3. Teléfono, conversación y modelo.
+4. Personas y cargos.
+5. Unidades.
+6. Incidencias.
+7. Dinero.
+
+Propone además 8 decisiones de negocio. El plan por tareas no se escribe hasta que Arturo las apruebe.
