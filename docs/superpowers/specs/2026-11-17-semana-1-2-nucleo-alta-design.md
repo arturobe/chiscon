@@ -207,3 +207,16 @@ La comisión ya no se calcula en la factura mensual por transferencia: queda sus
 - **La red.** Cuando no hay profesional de confianza, o ninguno acepta, el trabajo va a profesionales verificados cuya zona de trabajo cubre la comunidad. Se ordenan por cercanía, valoración, desviación de sus presupuestos y carga de trabajo (`capacidadSimultanea`). Estos trabajos pagan comisión.
 - **Noche.** Primero los profesionales de confianza que tengan guardia. Si no hay, la guardia de la red. Después, el teléfono 24 h del seguro.
 - **Esquema.** `ProveedorConfianza(despachoId, comunidadId?, oficio, orden 1..3, profesionalId)`, único por (ámbito, oficio, orden). Sustituye a la regla anterior de "uno por oficio". Zona de trabajo del profesional: distritos o radio. `Asignacion` registra el canal (CONFIANZA / RED) y el motivo por el que pasó al siguiente (NO_RESPONDE / RECHAZA / SIN_GUARDIA).
+
+## Decidido con Arturo: programa Gente de Fiar (17/11/2026)
+
+La evaluación completa está en el documento "Chiscón — Programa Gente de Fiar: evaluación" (https://claude.ai/artifact/QA3NYuAeF6a2sDdWQvd8PR).
+
+- **Qué se paga.** El profesional paga por la oportunidad de participar en trabajos de otras comunidades y en concursos. No paga por un puesto en la lista: la comunidad ve a los candidatos ordenados por cercanía y valoración.
+- **Quién puede entrar.** Cualquier profesional de la red que tenga las credenciales de su oficio, lo haya referido un despacho o no. Para que un profesional de confianza de un despacho pueda trabajar para otros despachos, ese despacho tiene que darle permiso expreso.
+- **Niveles.** Portal (obras hasta 4.000 €, 29 €/mes, sustituye al Plan Pro), Barrio (de 4.000 a 40.000 €) y Villa (más de 40.000 €). Las cuotas de Barrio y Villa se fijan en las entrevistas. Si en un mes no llega ningún aviso, ese mes no se cobra. El saldo no caduca y no hay permanencia.
+- **Cuándo empieza.** La inscripción se abre a la vez que el lanzamiento. Los concursos se abren por zona cuando haya demanda.
+- **Comisión por tramos.** Sin nivel: 12 % hasta 3.000 €, 5 % de 3.000 a 20.000 € y 2 % por encima, con un máximo de 1.500 € por obra. Con nivel: 5 %, 3 % y 1 %, con un máximo de 1.000 €. En obra mayor se cobra por certificaciones.
+- **Concursos.** Entre 2 y 4 ofertas, siempre con una de la red elegida por sorteo, y decide la junta. En obra mayor la ficha dice "documentación aportada", no "verificado".
+- **Descuento de fundador** (−30 % durante 12 meses): solo si el despacho mete toda su cartera.
+- **Cambios en el esquema:** `Profesional.nivel` y `credenciales` (con fecha de caducidad), `ProveedorConfianza.permiteOtrosDespachos`, `Concurso(incidenciaId, estado, maxOfertas)`, `OfertaConcurso`, `SuscripcionProfesional(nivel, mesesSinAvisos)`. La comisión se calcula con una función por tramos y su máximo.
