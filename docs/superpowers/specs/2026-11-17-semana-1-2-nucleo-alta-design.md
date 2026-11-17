@@ -154,3 +154,38 @@ Cinco especialistas simularon 73 situaciones sobre este diseño. El resultado es
 7. Dinero.
 
 Propone además 8 decisiones de negocio. El plan por tareas no se escribe hasta que Arturo las apruebe.
+
+## Decidido con Arturo: cobro de la comisión y presupuestos que crecen (17/11/2026)
+
+El detalle completo está en el documento "Chiscón — Cómo, cuándo y a quién se cobra" (https://claude.ai/artifact/SLzeeJM4cKuQkWx5vYi71T).
+
+**Cuándo se gana y se cobra la comisión**
+
+- La comisión se gana y se cobra al firmar el presupuesto. Se descuenta del **monedero prepago** del profesional, con recarga automática por tarjeta guardada o Bizum.
+- Los retrasos (repuestos, proveedores de materiales, tiempo) no la afectan.
+- Solo se devuelve como saldo, nunca en dinero, si el trabajo se anula antes de empezar por una causa ajena al profesional.
+- Sin saldo y con la recarga fallida, el profesional no puede aceptar trabajos nuevos.
+
+**El pago de la reparación**
+
+- Va directo de quien paga al profesional, como acuerden. Chiscón no interviene.
+- El enlace de pago es opcional.
+
+**Presupuestos que crecen**
+
+- **Margen de imprevistos** aprobado al firmar (10 % por defecto, lo fija el despacho). Dentro del margen, el profesional solo avisa con foto.
+- **Por encima del margen, ampliación:** una línea nueva firmada con código por WhatsApp. Se aplican los umbrales de presidente y de junta. Sin respuesta, recordatorio a las 24 h y después pasa al despacho.
+- **Comisión sobre la ampliación:** se cobra al firmarla. La del margen usado, al cerrar el trabajo.
+- **Límite de facturación:** el profesional no puede facturar más de lo firmado, más el margen y las ampliaciones.
+- **Desviación media por profesional** visible para el administrador. Si es alta y se repite, el profesional queda en pausa automática.
+
+**Pagos**
+
+- Monedero: PAYCOMET (recomendado) o el TPV Redsys del banco de la empresa.
+- Cuota del despacho: Stripe, con domiciliación SEPA.
+
+**Esquema, grupo 7 (dinero)**
+
+Tablas `Monedero` y `MovimientoMonedero` (recarga, comisión, devolución como saldo, cuota Pro; solo inserción). `Presupuesto` con `margenPct` y versiones o ampliaciones. `UsoMargen`. Desviación calculada por profesional.
+
+La comisión ya no se calcula en la factura mensual por transferencia: queda sustituida por el monedero.
