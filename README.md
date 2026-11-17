@@ -1,4 +1,4 @@
-# Plataforma de mantenimiento para comunidades de Madrid
+# ServiceXpress — Plataforma de mantenimiento para comunidades de Madrid
 
 Lanzamiento completo previsto: 15/2/2027. Diseño y PRD: sesión del consejo (`design.md`, `prd.md`).
 
