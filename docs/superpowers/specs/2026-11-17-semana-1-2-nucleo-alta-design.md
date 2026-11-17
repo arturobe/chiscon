@@ -198,4 +198,4 @@ La comisión ya no se calcula en la factura mensual por transferencia: queda sus
 - **Ampliar el paquete:** en cualquier momento, con cobro desde el mes siguiente.
 - **Reducir el paquete:** solo al renovar a los 12 meses. Excepción: si una comunidad cambia de administrador (con acta de la junta), sale del paquete el mes siguiente.
 - **Esquema:** `Suscripcion` con `paqueteComunidades`, `firmadoEn`, `finPuestaEnMarcha` (firma + 30 días) y líneas por comunidad con `numViviendasDeclarado` y tramo. La factura mensual sale del paquete, no de las comunidades activas.
-- **Abierto:** el mínimo de comunidades por paquete. Antes era 40, pero el ejemplo de Arturo (25 comunidades) queda por debajo.
+- **Sin mínimo ni máximo de comunidades por despacho** (decidido con Arturo el 17/11/2026). El paquete cerrado, el alta de 290 € y la cláusula de uso razonable ya cubren lo que el mínimo protegía.
