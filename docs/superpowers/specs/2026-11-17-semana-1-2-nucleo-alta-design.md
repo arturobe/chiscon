@@ -220,3 +220,38 @@ La evaluación completa está en el documento "Chiscón — Programa Gente de Fi
 - **Concursos.** Entre 2 y 4 ofertas, siempre con una de la red elegida por sorteo, y decide la junta. En obra mayor la ficha dice "documentación aportada", no "verificado".
 - **Descuento de fundador** (−30 % durante 12 meses): solo si el despacho mete toda su cartera.
 - **Cambios en el esquema:** `Profesional.nivel` y `credenciales` (con fecha de caducidad), `ProveedorConfianza.permiteOtrosDespachos`, `Concurso(incidenciaId, estado, maxOfertas)`, `OfertaConcurso`, `SuscripcionProfesional(nivel, mesesSinAvisos)`. La comisión se calcula con una función por tramos y su máximo.
+
+## Decidido con Arturo: urgencias nocturnas (17/11/2026)
+
+Detalle e investigación: "Chiscón — Urgencias nocturnas en Madrid: cómo funcionan hoy" (https://claude.ai/artifact/82U8GCfLn2QkxCJF764V7n). Arturo se reserva revisarlo más adelante.
+
+**Cadena nocturna** (20:00–8:00 y festivos), en este orden:
+
+1. Gas, fuego, humo o alguien atrapado: se muestra el texto del 112.
+2. Personas atrapadas en el ascensor: aviso a la empresa mantenedora del ascensor.
+3. Avería común cubierta por el seguro: se da el teléfono 24 h y el número de póliza. Si el seguro no llega en el plazo de la póliza, se pasa al paso 4.
+4. Profesional de confianza que esté de guardia; si no hay, la guardia de la red. Ambos actúan con contención de importe máximo.
+5. A las 9:00, resumen al despacho para el parte.
+
+Respecto al diseño anterior, **el seguro pasa a ir antes que la red**.
+
+**Contención con importe máximo.** Es una renuncia al presupuesto previo con tope, no un trabajo sin presupuesto (Decreto 35/1995). Topes, IVA incluido:
+
+- Fontanería, electricidad y desatasco: 250 €.
+- Cerrajería: 180 €.
+- Ascensor con personas atrapadas: 0 €.
+- Camión cuba: fuera del tope.
+
+El profesional solo contiene el daño, no repara. La tarifa nocturna del profesional (desplazamiento único, precio por hora y recargo) se publica antes de salir.
+
+**Autorización.** El despacho firma por cada comunidad una autorización permanente de contención (LPH art. 20.c). Cada vez que se usa, se avisa automáticamente al presidente y al despacho.
+
+Pendiente del abogado: si la firma con código sirve como renuncia, y si las zonas comunes cuentan como domicilio a efectos del decreto.
+
+**Esquema:**
+
+- `PolizaComunidad`: aseguradora, número, teléfono 24 h, coberturas y plazo de llegada.
+- `Comunidad`: mantenedor del ascensor y su teléfono 24 h.
+- `TarifaNocturnaProfesional`: desplazamiento, precio por hora y recargo.
+- `AutorizacionContencion`: comunidad, topes por oficio, firmada por, versión del texto y hash.
+- `Incidencia.contencion`: importe máximo y si se ha usado.
